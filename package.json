@@ -1,16 +1,24 @@
 {
-  "name": "telebirr",
+  "name": "telebirr-typescript",
   "version": "1.0.0",
   "description": "it is library to integrate telebirr integration for typescript",
-  "main": "index.js",
-  "scripts": {
-    "test": "test"
-  },
+  "main": "dist/index.js",
+  "types": "types/types.d.ts",
   "keywords": [
     "telebirr",
     "payment",
     "web"
   ],
   "author": "Abduljebar Sani",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/node-rsa": "^1.1.4",
+    "axios": "^1.6.8",
+    "crypto": "^1.0.1",
+    "node-rsa": "^1.1.1"
+  }
 }
