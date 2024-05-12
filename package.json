@@ -1,0 +1,16 @@
+{
+  "name": "telebirr",
+  "version": "1.0.0",
+  "description": "it is library to integrate telebirr integration for typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "telebirr",
+    "payment",
+    "web"
+  ],
+  "author": "Abduljebar Sani",
+  "license": "ISC"
+}
