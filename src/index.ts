@@ -12,7 +12,7 @@ const TELEBIRR_H5_URL =
 const TELEBIRR_IN_APP_URL =
   "https://app.ethiomobilemoney.et:2121/ammapi/payment/service-openup/toTradeMobilePay";
 
-export default class Telebirr {
+export class Telebirr {
   private appId: string;
   private appKey: string;
   private shortCode: string;
