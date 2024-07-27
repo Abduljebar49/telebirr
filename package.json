@@ -1,6 +1,6 @@
 {
   "name": "telebirr-typescript",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "it is library to integrate telebirr integration for typescript",
   "main": "dist/index.js",
   "types": "types/types.d.ts",
