@@ -1,95 +1,57 @@
-import * as crypto from "crypto";
-import NodeRSA from "node-rsa";
-import axios from "axios";
+import crypto from 'crypto';
+import NodeRSA from 'node-rsa';
+import axios from 'axios';
 
 const TELEBIRR_H5_URL =
-  "https://app.ethiomobilemoney.et:2121/ammapi/payment/service-openup/toTradeWebPay";
+  'https://app.ethiomobilemoney.et:2121/ammapi/payment/service-openup/toTradeWebPay';
 const TELEBIRR_IN_APP_URL =
-  "https://app.ethiomobilemoney.et:2121/ammapi/payment/service-openup/toTradeMobilePay";
+  'https://app.ethiomobilemoney.et:2121/ammapi/payment/service-openup/toTradeMobilePay';
 
-
-  type PaymentMethod = 'web' | 'app';
-
-
-export interface TelebirrOptions {
-    appId: string;
-    appKey: string;
-    shortCode: string;
-    publicKey: string;
+interface TelebirrConfig {
+  appId: string;
+  appKey: string;
+  shortCode: string;
+  publicKey: string;
 }
 
-export interface PaymentOptions {
-    paymentMethod?: 'web' | 'app';
-    nonce: string;
-    notifyUrl: string;
-    totalAmount: number;
-    outTradeNo: string;
-    receiveName: string;
-    returnApp?: string;
-    returnUrl: string;
-    subject: string;
-    timeoutExpress?: string;
+interface PaymentParams {
+  paymentMethod?: 'web' | 'app';
+  nonce: string;
+  notifyUrl: string;
+  totalAmount: number;
+  outTradeNo: string;
+  receiveName: string;
+  returnApp?: string;
+  returnUrl: string;
+  subject: string;
+  timeoutExpress?: string;
 }
 
-export interface PaymentResponse {
-    success: boolean;
-    response?: any;
-    error?: any;
-}
-export interface PaymentParams {
-    paymentMethod?: PaymentMethod;
-    nonce: string;
-    notifyUrl: string;
-    totalAmount: number;
-    outTradeNo: string;
-    receiveName: string;
-    returnApp?: string;
-    returnUrl: string;
-    subject: string;
-    timeoutExpress?: string;
-}
-
-export interface TelebirrConfig {
-    appId: string;
-    appKey: string;
-    shortCode: string;
-    publicKey: string;
-}
-
-export interface TelebirrResponse {
-    success: boolean;
-    response?: any;
-    error?: any;
-}
-
-
-export class Telebirr {
+class Telebirr {
   private appId: string;
   private appKey: string;
   private shortCode: string;
   private publicKey: string;
 
-  constructor({ appId, appKey, shortCode, publicKey }: TelebirrOptions) {
+  constructor({ appId, appKey, shortCode, publicKey }: TelebirrConfig) {
     this.appId = appId;
     this.appKey = appKey;
     this.shortCode = shortCode;
     this.publicKey = publicKey;
   }
 
-  async makePayment(options: PaymentOptions): Promise<PaymentResponse> {
-    const {
-      paymentMethod = "web",
-      nonce,
-      notifyUrl,
-      totalAmount,
-      outTradeNo,
-      receiveName,
-      returnApp = "com.example.app",
-      returnUrl,
-      subject,
-      timeoutExpress = `${24 * 60}`, // 1 day
-    } = options;
-
+  async makePayment({
+    paymentMethod = 'web',
+    nonce,
+    notifyUrl,
+    totalAmount,
+    outTradeNo,
+    receiveName,
+    returnApp = 'com.example.app',
+    returnUrl,
+    subject,
+    timeoutExpress = `${24 * 60}`, // 1 day
+  }: PaymentParams): Promise<{ success: boolean; response?: any; error?: any }> {
     const params = {
       appId: this.appId,
       appKey: this.appKey,
@@ -106,7 +68,7 @@ export class Telebirr {
       totalAmount,
     };
 
-    const url = paymentMethod === "app" ? TELEBIRR_IN_APP_URL : TELEBIRR_H5_URL;
+    const url = paymentMethod == 'app' ? TELEBIRR_IN_APP_URL : TELEBIRR_H5_URL;
 
     const payload = {
       appid: this.appId,
@@ -116,44 +78,43 @@ export class Telebirr {
 
     try {
       const res = await axios.post(url, payload);
-
-      return { success: res.data.code === 200, response: res.data };
+      return { success: res.data.code == 200, response: res.data };
     } catch (e) {
       console.log(e);
       return { success: false, error: e };
     }
   }
 
-  encrypt(payload: any): string {
+  private encrypt(payload: any): string {
     const rsaKey = new NodeRSA(
       `-----BEGIN PUBLIC KEY-----\n${this.publicKey}\n-----END PUBLIC KEY-----`,
-      "public",
+      'public',
       {
-        encryptionScheme: "pkcs1",
+        encryptionScheme: 'pkcs1',
       }
     );
     const dataToEncrypt = Buffer.from(JSON.stringify(payload));
-    return rsaKey.encrypt(dataToEncrypt, "base64", "utf8");
+    return rsaKey.encrypt(dataToEncrypt, 'base64', 'utf8');
   }
 
-  signData(fields: any): string {
+  private signData(fields: any): string {
     const encodedFields = Object.keys(fields)
       .sort()
       .map((key) => `${key}=${fields[key]}`)
-      .join("&");
+      .join('&');
 
-    return crypto.createHash("sha256").update(encodedFields).digest("hex");
+    return crypto.createHash('sha256').update(encodedFields).digest('hex');
   }
 
-  decryptPublic(dataToDecrypt: string): string {
+  private decryptPublic(dataToDecrypt: string): string {
     const rsaKey = new NodeRSA(
       `-----BEGIN PUBLIC KEY-----\n${this.publicKey}\n-----END PUBLIC KEY-----`,
-      "public",
+      'public',
       {
-        encryptionScheme: "pkcs1",
+        encryptionScheme: 'pkcs1',
       }
     );
-    return rsaKey.decryptPublic(dataToDecrypt, "utf8");
+    return rsaKey.decryptPublic(dataToDecrypt, 'utf8');
   }
 
   getDecryptedCallbackNotification(encryptedText: string): any {
@@ -161,3 +122,5 @@ export class Telebirr {
     return JSON.parse(decryptedText);
   }
 }
+
+export default Telebirr;
